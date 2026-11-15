@@ -57,16 +57,28 @@
                                 </p>
                         <% } %>
 
+                        <% if (request.status === "Pending") { %>
                         <div class="card-btns">
-                            <form action="/assign-request" method="POST">
-                                <input type="hidden" name="requestId" value="<%= request._id %>">
-                                <button type="submit" class="btn btn2 btn-success">Assign</button>
-                            </form>
-
-                            <form action="/reject-request" method="POST">
-                                <input type="hidden" name="requestId" value="<%= request._id %>">
-                                <button type="submit" class="btn btn2 btn-danger">Reject</button>
-                            </form>
+                                                        <details class="request-edit">
+                                <summary class="btn btn2 btn-warning">Edit Urgency</summary>
+                                <form action="/edit-request" method="POST" class="mt-2">
+                                    <input type="hidden" name="requestId" value="<%= request._id %>">
+                                    <label for="urgency-<%= request._id %>">Urgency</label>
+                                    <select
+                                        class="form-select mb-2"
+                                        id="urgency-<%= request._id %>"
+                                        name="urgency"
+                                        required
+                                    >
+                                        <% ["Low", "Medium", "High", "Emergency"].forEach(urgency => { %>
+                                            <option value="<%= urgency %>" <%= request.urgency === urgency ? "selected" : "" %>>
+                                                <%= urgency %>
+                                            </option>
+                                        <% }); %>
+                                    </select>
+                                    <button type="submit" class="btn btn-dark">Save Urgency</button>
+                                </form>
+                            </details>
                             <details class="request-inquiry">
                                 <summary class="btn btn2 btn-primary">Inquire</summary>
                                 <form action="/inquire-request" method="POST">
@@ -85,7 +97,16 @@
                                     </button>
                                 </form>
                             </details>
+                            <form action="/assign-request" method="POST">
+                                <input type="hidden" name="requestId" value="<%= request._id %>">
+                                <button type="submit" class="btn btn2 btn-success">Assign</button>
+                            </form>
+                            <form action="/reject-request" method="POST">
+                                <input type="hidden" name="requestId" value="<%= request._id %>">
+                                <button type="submit" class="btn btn2 btn-danger">Reject</button>
+                            </form>
                         </div>
+                        <% } %>
                 </div>
             </div>
         <% }); %>

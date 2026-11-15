@@ -1,5 +1,11 @@
 <%- include('partials/header') %>
-<%- include('partials/nav-display') %>
+<div class="header">
+    <p id="head">Property Maintenance Solutions</p>
+    <hr/>
+    <div id="nav-options">
+        <a href="/logout" class="nav-links">Log Out</a>
+    </div>
+</div>
 
 <div id="box">
     <% if (queue.length === 0) { %>

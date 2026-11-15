@@ -208,7 +208,7 @@ app.get("/tenant", requireLogin, async (req, res) => {
 
         const requests = await TenantRequest.find({
             tenantEmail: user.email,
-            status: { $ne: "Rejected" }
+            status: { $ne: "Resolved"}
         }).sort({ createdAt: -1 });
 
         res.render("tenant", {
@@ -523,7 +523,18 @@ app.get("/owner-request", requireLogin, async (req, res) => {
         const requests = await TenantRequest.find({
             tenantEmail: { $in: tenantEmails },
             status: { $in: ["Assigned", "In Progress", "Pending"] }
-        }).sort({ createdAt: -1 });
+        });
+
+        const urgencyPriority = {
+            Emergency: 0,
+            High: 1,
+            Medium: 2,
+            Low: 3
+        };
+        requests.sort((a, b) =>
+            urgencyPriority[a.urgency] - urgencyPriority[b.urgency] ||
+            b.createdAt - a.createdAt
+        );
 
         res.render("owner-requests", {
             requests,
@@ -534,6 +545,54 @@ app.get("/owner-request", requireLogin, async (req, res) => {
     } catch (error) {
         console.error("Error fetching owner requests:", error);
         res.status(500).send("Unable to load maintenance requests.");
+    }
+});
+
+app.post("/edit-request", requireLogin, async (req, res) => {
+    try {
+        const owner = await User.findById(req.session.userId);
+
+        if (!owner) {
+            return res.redirect("/login");
+        }
+
+        if (owner.userType !== "Owner") {
+            return res.status(403).send("Access denied.");
+        }
+
+        if (!mongoose.isValidObjectId(req.body.requestId)) {
+            return res.sendStatus(404);
+        }
+
+        const validUrgencies = ["Low", "Medium", "High", "Emergency"];
+        if (!validUrgencies.includes(req.body.urgency)) {
+            return res.status(400).send("Select a valid urgency.");
+        }
+
+        const properties = await Property.find({ ownerId: owner._id }).select("tenantEmail");
+        const tenantEmails = properties
+            .map(property => property.tenantEmail)
+            .filter(Boolean);
+        const request = await TenantRequest.findOne({
+            _id: req.body.requestId,
+            tenantEmail: { $in: tenantEmails },
+            status: "Pending"
+        });
+
+        if (!request) {
+            return res.sendStatus(404);
+        }
+
+        request.urgency = req.body.urgency;
+        await request.save();
+
+        return res.redirect(
+            "/owner-request?success=" +
+            encodeURIComponent("Request urgency updated successfully!")
+        );
+    } catch (error) {
+        console.error("Error updating request urgency:", error);
+        return res.status(500).send("Unable to update request urgency.");
     }
 });
 

@@ -29,10 +29,6 @@ h1{
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20%;
-        margin-top: 7%;
-        margin-left: 18%;
-        position: absolute;
-        bottom: 4%;
 }
 
 .row{
@@ -229,4 +225,19 @@ hr{
 
 #property-hr{
         height: 5px;
+}
+
+.card-btns{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3%;
+}
+
+.request-inquiry{
+        margin: 5px 0;
+        grid-column: span 2;
+}
+
+.request-edit{
+        grid-column: span 2;
 }
