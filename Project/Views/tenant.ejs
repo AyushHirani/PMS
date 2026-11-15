@@ -1,11 +1,15 @@
 <%- include('partials/header') %>
 <%- include('partials/nav-display') %>
+<script>
+        const params = new URLSearchParams(window.location.search);
+        const success = params.get("success");
+
+        if (success) {
+            alert(success);
+        }
+</script>
 
 <div id="box">
-    <% if (successMessage) { %>
-        <div class="alert alert-success"><%= successMessage %></div>
-    <% } %>
-
     <% if (requests.length === 0) { %>
         <p>You haven't submitted any maintenance requests yet.</p>
     <% } else { %>

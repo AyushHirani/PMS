@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import session from 'express-session';
 import bcrypt from 'bcrypt';
 import multer from "multer";
+import nodemailer from "nodemailer";
 import { User } from './models/userModel.js';
 import { TenantRequest } from "./models/requestModel.js";
 import { Property } from "./models/propertyModel.js";
@@ -12,6 +13,13 @@ import { Property } from "./models/propertyModel.js";
 const app = express();
 const uri = process.env.URI;
 const port = 3000;
+const mailTransport = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASS
+    }
+});
  
 // ---- Database connection ----
 mongoose.connect(uri)
@@ -148,7 +156,8 @@ app.get("/maintenance", requireLogin, async (req, res) => {
         }
 
         const requests = await TenantRequest.find({
-            assignedTo: user.userName
+            assignedTo: user.userName,
+            status: { $in: ["Assigned", "In Progress"] }
         });
 
         const urgencyPriority = {
@@ -198,7 +207,8 @@ app.get("/tenant", requireLogin, async (req, res) => {
         }
 
         const requests = await TenantRequest.find({
-            tenantEmail: user.email
+            tenantEmail: user.email,
+            status: { $ne: "Rejected" }
         }).sort({ createdAt: -1 });
 
         res.render("tenant", {
@@ -486,7 +496,6 @@ app.post(
         }
     }
 );
-});
 
 app.get("/owner-request", requireLogin, async (req, res) => {
     try {
@@ -512,12 +521,14 @@ app.get("/owner-request", requireLogin, async (req, res) => {
 
         // Find requests submitted by those tenants
         const requests = await TenantRequest.find({
-            tenantEmail: { $in: tenantEmails }
+            tenantEmail: { $in: tenantEmails },
+            status: { $in: ["Assigned", "In Progress", "Pending"] }
         }).sort({ createdAt: -1 });
 
         res.render("owner-requests", {
             requests,
-            properties
+            properties,
+            successMessage: req.query.success
         });
 
     } catch (error) {
@@ -559,6 +570,73 @@ app.post("/assign-request", requireLogin, async (req, res) => {
     } catch (error) {
         console.error("Error loading request assignment:", error);
         return res.status(500).send("Unable to load request assignment.");
+    }
+});
+
+app.post("/inquire-request", requireLogin, async (req, res) => {
+    try {
+        const owner = await User.findById(req.session.userId);
+
+        if (!owner) {
+            return res.redirect("/login");
+        }
+
+        if (owner.userType !== "Owner") {
+            return res.status(403).send("Access denied.");
+        }
+
+        const message = typeof req.body.message === "string"
+            ? req.body.message.trim()
+            : "";
+
+        if (!message || message.length > 2000) {
+            return res.status(400).send("Enter an inquiry message of up to 2000 characters.");
+        }
+
+        if (!process.env.EMAIL || !process.env.PASS) {
+            console.error("Email delivery is not configured.");
+            return res.status(500).send("Email service is not configured.");
+        }
+
+        if (!mongoose.isValidObjectId(req.body.requestId)) {
+            return res.sendStatus(404);
+        }
+
+        const properties = await Property.find({ ownerId: owner._id }).select("tenantEmail");
+        const tenantEmails = properties
+            .map(property => property.tenantEmail)
+            .filter(Boolean);
+        const request = await TenantRequest.findOne({
+            _id: req.body.requestId,
+            tenantEmail: { $in: tenantEmails }
+        });
+
+        if (!request) {
+            return res.sendStatus(404);
+        }
+
+        await mailTransport.sendMail({
+            from: process.env.EMAIL,
+            to: request.tenantEmail,
+            replyTo: owner.email || undefined,
+            subject: "A question about your maintenance request",
+            text: [
+                `Hello ${request.tenantName || "Tenant"},`,
+                "",
+                `${owner.userName} has a question about your maintenance request: "${request.issue}".`,
+                "",
+                message,
+                "",
+                "Please reply to this email within 48 hours or your request will be rejected."
+            ].join("\n")
+        });
+
+        return res.redirect("owner-request?success=" +
+                encodeURIComponent("Email sent successfully!")
+            );
+    } catch (error) {
+        console.error("Error emailing maintenance request inquiry:", error);
+        return res.status(500).send("Unable to email the tenant inquiry.");
     }
 });
 
@@ -643,6 +721,107 @@ app.post("/reject-request", requireLogin, async (req, res) => {
 });
 
 // ---- Logout (optional, pairs with login) ----
+app.post("/maintenance/requests/:id/progress", requireLogin, async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+
+        if (!user) {
+            return res.redirect("/login");
+        }
+
+        if (user.userType !== "Maintenance") {
+            return res.status(403).send("Access denied.");
+        }
+
+        if (!mongoose.isValidObjectId(req.params.id)) {
+            return res.sendStatus(404);
+        }
+
+        if (!["In Progress", "Resolved"].includes(req.body.status)) {
+            return res.status(400).send("Select a valid progress status.");
+        }
+
+        const request = await TenantRequest.findOne({
+            _id: req.params.id,
+            assignedTo: user.userName,
+            status: { $in: ["Assigned", "In Progress"] }
+        });
+
+        if (!request) {
+            return res.sendStatus(404);
+        }
+
+        let owner;
+        if (req.body.status === "Resolved") {
+            if (!process.env.EMAIL || !process.env.PASS) {
+                console.error("Email delivery is not configured.");
+                return res.status(500).send("Email service is not configured.");
+            }
+
+            if (!request.tenantEmail) {
+                console.error(`No tenant email found for request ${request._id}.`);
+                return res.status(500).send("Unable to find the tenant's email.");
+            }
+
+            const property = await Property.findOne({
+                tenantEmail: request.tenantEmail
+            })
+                .sort({ createdAt: -1 })
+                .populate("ownerId", "userName email");
+
+            owner = property?.ownerId;
+            if (!owner?.email) {
+                console.error(`No owner email found for request ${request._id}.`);
+                return res.status(500).send("Unable to find the property owner's email.");
+            }
+        }
+
+        request.status = req.body.status;
+        await request.save();
+
+        if (req.body.status === "Resolved") {
+            const recipients = [
+                { email: request.tenantEmail, name: request.tenantName || "Tenant" },
+                { email: owner.email, name: owner.userName || "Property owner" }
+            ].filter((recipient, index, all) =>
+                all.findIndex(other =>
+                    other.email.toLowerCase() === recipient.email.toLowerCase()
+                ) === index
+            );
+            const notifications = await Promise.allSettled(
+                recipients.map(recipient => mailTransport.sendMail({
+                    from: process.env.EMAIL,
+                    to: recipient.email,
+                    subject: "Maintenance request resolved",
+                    text: [
+                        `Hello ${recipient.name},`,
+                        "",
+                        `The maintenance request "${request.issue}" has been resolved.`,
+                        "",
+                        `Tenant: ${request.tenantName}`,
+                        `Assigned maintenance person: ${user.userName}`
+                    ].join("\n")
+                }))
+            );
+            const failedNotifications = notifications.filter(result => result.status === "rejected");
+
+            if (failedNotifications.length > 0) {
+                failedNotifications.forEach(result =>
+                    console.error("Error sending resolution notification:", result.reason)
+                );
+                return res.status(500).send(
+                    "The request was resolved, but one or more notification emails could not be sent."
+                );
+            }
+        }
+
+        return res.redirect("/maintenance");
+    } catch (error) {
+        console.error("Error updating maintenance request progress:", error);
+        return res.status(500).send("Unable to update maintenance request progress.");
+    }
+});
+
 app.get("/logout", (req, res) => {
     req.session.destroy((err) => {
         if (err) {

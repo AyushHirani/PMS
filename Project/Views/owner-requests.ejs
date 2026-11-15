@@ -1,6 +1,15 @@
 <%- include('partials/header') %>
 <%- include('partials/nav-property') %>
 
+<script>
+        const params = new URLSearchParams(window.location.search);
+        const success = params.get("success");
+
+        if (success) {
+            alert(success);
+        }
+</script>
+
 <div id="box">
     <% if (requests.length === 0) { %>
         <p>There are no maintenance requests for your properties yet.</p>
@@ -48,7 +57,7 @@
                                 </p>
                         <% } %>
 
-                        <div class="btns">
+                        <div class="card-btns">
                             <form action="/assign-request" method="POST">
                                 <input type="hidden" name="requestId" value="<%= request._id %>">
                                 <button type="submit" class="btn btn2 btn-success">Assign</button>
@@ -58,6 +67,24 @@
                                 <input type="hidden" name="requestId" value="<%= request._id %>">
                                 <button type="submit" class="btn btn2 btn-danger">Reject</button>
                             </form>
+                            <details class="request-inquiry">
+                                <summary class="btn btn2 btn-primary">Inquire</summary>
+                                <form action="/inquire-request" method="POST">
+                                    <input type="hidden" name="requestId" value="<%= request._id %>">
+                                    <label for="inquiry-<%= request._id %>">Message to tenant</label>
+                                    <textarea
+                                        class="form-control"
+                                        name="message"
+                                        id="inquiry-<%= request._id %>"
+                                        rows="3"
+                                        maxlength="2000"
+                                        required
+                                    ></textarea>
+                                    <button type="submit" class="btn btn-dark mt-2">
+                                        Email Inquiry
+                                    </button>
+                                </form>
+                            </details>
                         </div>
                 </div>
             </div>
