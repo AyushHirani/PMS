@@ -1,0 +1,50 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+<div class="container mt-5">
+  <div class="row">
+        <h1>Login</h1>
+    <div class="col-sm-8 box">
+      <div class="card">
+        <div class="card-body login">
+          <% if (successMessage) { %>
+            <div class="alert alert-success" role="alert" id="successMessage">
+                <%= successMessage %>
+            </div>
+            <script>
+                setTimeout(() => {
+                    document.getElementById('successMessage').style.display = 'none';
+                }, 1000); 
+            </script>
+          <% } %>
+          <script>
+              const params = new URLSearchParams(window.location.search);
+              const error = params.get("error");
+
+              if (error) {
+                  alert(error);
+              }
+          </script>
+          <form action="/login" method="POST">
+            <div class="form-group">
+              <label for="text">Username</label>
+              <input type="text" class="form-control" name="username" id="username" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" class="form-control" name="password" id="password" required>
+            </div>
+            <div class="btn-login">
+              <button type="submit" class="btn btn-primary">Login</button>
+              <!-- <a href="/change-password" class="cgpass"><button type="button" class="btn btn-dark">Change Password</button></a> -->
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="fpass">
+      <a href="/">Cancel?</a>   
+  </div>
+</div>
+
+<%- include('partials/footer') %>

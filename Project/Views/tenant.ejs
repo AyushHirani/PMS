@@ -1,0 +1,60 @@
+<%- include('partials/header') %>
+<%- include('partials/nav-display') %>
+
+<div id="box">
+    <% if (successMessage) { %>
+        <div class="alert alert-success"><%= successMessage %></div>
+    <% } %>
+
+    <% if (requests.length === 0) { %>
+        <p>You haven't submitted any maintenance requests yet.</p>
+    <% } else { %>
+
+        <% requests.forEach(request => { %>
+            <div class="request-card mb-3">
+                <div class="card-body">
+                        <h5><%= request.issue %></h5>
+
+                        <p>
+                                <strong>Description:</strong>
+                                <%= request.description %>
+                        </p>
+
+                        <p>
+                                <strong>Urgency:</strong>
+                                <%= request.urgency %>
+                        </p>
+
+                        <p>
+                                <strong>Status:</strong>
+                                <%= request.status %>
+                        </p>
+
+                        <p>
+                                <strong>Submitted On:</strong>
+                                <%= new Date(request.createdAt).toLocaleDateString() %>
+                        </p>
+
+                        <% if (request.assignedTo) { %>
+                                <p>
+                                <strong>Assigned To:</strong>
+                                <%= request.assignedTo %>
+                                </p>
+                        <% } %>
+
+                        <% if (request.status === "Pending") { %>
+                            <a
+                                class="btn btn-dark"
+                                href="/tenant/requests/<%= request._id %>/edit"
+                            >
+                                Edit Request
+                            </a>
+                        <% } %>
+                </div>
+            </div>
+        <% }); %>
+
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>

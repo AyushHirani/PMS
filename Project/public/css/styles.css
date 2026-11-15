@@ -1,0 +1,232 @@
+body{
+        background-color: aliceblue;     
+        margin-bottom: 5%;  
+}
+
+#home{
+        position: absolute;
+        width: 40%;
+        height: 20%;
+        top: 25%;
+        bottom: 0%;
+        left: 32%;
+        right: 0%;
+}
+
+.logo{
+        display: block;
+        margin: 0 auto;
+        width: 100%;
+        height: 170%;
+}
+
+h1{
+        text-align: center;
+        margin-bottom: 2%;
+}
+
+.btns{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20%;
+        margin-top: 7%;
+        margin-left: 18%;
+        position: absolute;
+        bottom: 4%;
+}
+
+.row{
+        margin: 0 auto;
+        width: 70%;
+        height: 50%;
+        display: flex;
+        flex-direction: column;
+}
+
+.box{
+        display: block;
+        margin: 0 auto;
+}
+
+.btn{
+        width: 35%;
+        display: block;
+        margin: 0 auto;
+}
+
+.btn-login{
+        width: 100%;
+        display: block;
+        margin: 0 auto;
+}
+
+.btn2{
+        width: 100%;
+}
+
+#head{
+        font-size: 250%;
+        font-weight: bold;
+        margin-left: 2%;
+}
+
+hr{
+        background-color: rgb(0, 134, 216);
+        height: 20px;
+}
+
+.header{
+        padding-top: 2%;
+}
+
+.header-logo{
+        width: 5%;
+        height: 10%;
+        transform: rotateZ(90deg);
+        position: absolute;
+        top: 3.5%;
+        left: 3%;
+}
+
+#fpass{
+        padding-top: 10px;
+        width: 5%;
+        display: block;
+        margin: 0 auto;
+}
+
+#nav-options {
+        position: absolute;
+        top: 6%;
+        right: 1%;
+        font-size: 25px;
+}
+
+#nav-options a {
+        margin-right: 20px;
+        text-decoration: none;
+        color: black;
+}
+
+#nav-options a:hover {
+        color: red;
+        transition: color 0.3s;
+        border-radius: 5px;
+        text-shadow: 1px 1px 2px #636363
+}
+
+.cgpass{
+       text-decoration: none;
+       color: white;
+       width: 50%;        
+}
+
+.cgpass button{
+        width: 70%; 
+}
+
+.checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+}
+
+.form-control[name= "notify"]{
+        width: 20%;
+}
+
+#question{
+        margin-bottom: 5px;
+}
+
+.form-control[name= "bugType"]{
+        width: 40.8%;
+        margin-left: 5.5%;
+}
+
+.form-control[name= "date"]{
+        width: 35%;
+}
+
+.form-control[name= "priority"]{
+        width: 25%;
+        margin-left: 1.7%;
+}
+
+.change{
+        display: flex;
+        gap: 5%;
+}
+
+.request-card {
+        position: relative;
+        width: 400px;
+        height: auto; 
+        margin: 20px auto;
+        background-color: #ccc;
+        border: 1px solid black;
+        border-radius: 5px;
+        box-shadow: 2px 2px #666;
+        padding: 20px;
+}
+
+.property-card {
+        position: relative;
+        width: 350px;
+        height: auto; 
+        margin: 20px auto;
+        background-color: #ccc;
+        border: 1px solid black;
+        border-radius: 5px;
+        box-shadow: 2px 2px #666;
+        padding: 20px;
+}
+      
+.title {
+        margin-top: 0;
+}
+      
+.description {
+        margin-bottom: 20px;
+}
+      
+.edit-button{
+        position: absolute;
+        bottom: 5px;
+        right: 85px;
+        padding: 5px 10px;
+        font-size: 12px;
+}
+      
+.close-button {
+        position: absolute;
+        bottom: 5px;
+        right: 10px;
+        padding: 5px 10px;
+        font-size: 12px;
+}
+      
+.date {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 12px;
+        color: #666;
+}
+
+#box{
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
+}
+
+#property-box{
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1%;
+}
+
+#property-hr{
+        height: 5px;
+}

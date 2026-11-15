@@ -1,0 +1,79 @@
+<%- include('partials/header') %>
+
+<div class="header">
+    <p id="head">Property Maintenance Solutions</p>
+    <hr/>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const success = params.get("success");
+
+        if (success) {
+            alert(success);
+        }
+    </script>
+
+    <div id="nav-options">
+        <a href="/new-property" class="nav-links">New Property</a>
+        <a href="/owner-request" class="nav-links">Requests</a>
+        <a href="/logout" class="nav-links">Log Out</a>
+    </div>
+</div>
+
+<div id="property-box">
+    <% if (!properties || properties.length === 0) { %>
+        <p>You haven't added any properties yet.</p>
+    <% } else { %>
+            <% properties.forEach(property => { %>
+                <div class="property-card">
+                    <div>
+
+                        <% if (property.photo && property.photo.data) { %>
+                            <img
+                                src="/properties/<%= property._id %>/photo"
+                                class="card-img-top"
+                                alt="Property photo"
+                                style="height: 220px; object-fit: cover;"
+                            >
+                        <% } %>
+
+                        <div>
+                            <p>
+                                <strong>Address:</strong>
+                                <%= property.streetAddress %>,
+                                <%= property.city %>,
+                                <%= property.province %>,
+                                <%= property.pin %>
+                            </p>
+
+                            <p>
+                                <strong>Description:</strong>
+                                <%= property.description %>
+                            </p>
+
+                            <hr id="property-hr"/>
+
+                            <h6>Tenant Information</h6>
+
+                            <p>
+                                <strong>Name:</strong>
+                                <%= property.tenantName || "No tenant assigned" %>
+                            </p>
+
+                            <p>
+                                <strong>Email:</strong>
+                                <%= property.tenantEmail || "Not provided" %>
+                            </p>
+
+                            <small class="text-muted">
+                                Added:
+                                <%= new Date(property.createdAt).toLocaleDateString() %>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>

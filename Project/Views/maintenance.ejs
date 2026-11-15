@@ -1,0 +1,71 @@
+<%- include('partials/header') %>
+<%- include('partials/nav-display') %>
+
+<div id="box">
+    <% if (queue.length === 0) { %>
+        <p>You don't have any assigned requests yet.</p>
+    <% } else { %>
+
+        <% queue.forEach(({ request, property }) => { %>
+            <div class="request-card mb-3">
+                <div class="card-body">
+                        <h5><%= request.issue %></h5>
+
+                        <p>
+                                <strong>Description:</strong>
+                                <%= request.description %>
+                        </p>
+
+                        <p>
+                                <strong>Urgency:</strong>
+                                <%= request.urgency %>
+                        </p>
+
+                        <p>
+                                <strong>Status:</strong>
+                                <%= request.status %>
+                        </p>
+
+                        <p>
+                                <strong>Tenant Name:</strong>
+                                <%= request.tenantName %>
+                        </p>
+
+                        <p>
+                                <strong>Tenant Email:</strong>
+                                <%= request.tenantEmail %>
+                        </p>
+
+                        <p>
+                                <strong>Property Address:</strong>
+                                <% if (property) { %>
+                                    <%= [property.streetAddress, property.city, property.province, property.pin]
+                                        .filter(Boolean)
+                                        .join(", ") %>
+                                <% } else { %>
+                                    Not available
+                                <% } %>
+                        </p>
+
+                        <p>
+                                <strong>Owner Name:</strong>
+                                <%= property?.ownerId?.userName || "Not available" %>
+                        </p>
+
+                        <p>
+                                <strong>Owner Email:</strong>
+                                <%= property?.ownerId?.email || "Not available" %>
+                        </p>
+
+                        <p>
+                                <strong>Submitted On:</strong>
+                                <%= new Date(request.createdAt).toLocaleDateString() %>
+                        </p>
+                </div>
+            </div>
+        <% }); %>
+
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>

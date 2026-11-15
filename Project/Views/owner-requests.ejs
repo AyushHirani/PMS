@@ -1,0 +1,69 @@
+<%- include('partials/header') %>
+<%- include('partials/nav-property') %>
+
+<div id="box">
+    <% if (requests.length === 0) { %>
+        <p>There are no maintenance requests for your properties yet.</p>
+    <% } else { %>
+
+        <% requests.forEach(request => { %>
+            <div class="request-card mb-3">
+                <div class="card-body">
+                        <h5><%= request.issue %></h5>
+
+                        <p>
+                                <strong>Tenant:</strong>
+                                <%= request.tenantName || "Unknown tenant" %>
+                        </p>
+
+                        <p>
+                                <strong>Tenant Email:</strong>
+                                <%= request.tenantEmail || "Not available" %>
+                        </p>
+
+                        <p>
+                                <strong>Description:</strong>
+                                <%= request.description %>
+                        </p>
+
+                        <p>
+                                <strong>Urgency:</strong>
+                                <%= request.urgency %>
+                        </p>
+
+                        <p>
+                                <strong>Status:</strong>
+                                <%= request.status %>
+                        </p>
+
+                        <p>
+                                <strong>Submitted On:</strong>
+                                <%= new Date(request.createdAt).toLocaleDateString() %>
+                        </p>
+
+                        <% if (request.assignedTo) { %>
+                                <p>
+                                <strong>Assigned To:</strong>
+                                <%= request.assignedTo %>
+                                </p>
+                        <% } %>
+
+                        <div class="btns">
+                            <form action="/assign-request" method="POST">
+                                <input type="hidden" name="requestId" value="<%= request._id %>">
+                                <button type="submit" class="btn btn2 btn-success">Assign</button>
+                            </form>
+
+                            <form action="/reject-request" method="POST">
+                                <input type="hidden" name="requestId" value="<%= request._id %>">
+                                <button type="submit" class="btn btn2 btn-danger">Reject</button>
+                            </form>
+                        </div>
+                </div>
+            </div>
+        <% }); %>
+
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>

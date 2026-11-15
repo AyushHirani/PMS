@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+
+<div id="home">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRETdQjkaRfnKB5Iyqp88ul09mr-E5RmcxgtRjWcbaYA&s=10" alt="House" class="logo">
+    <h1>Property Maintenance Solutions</h1>
+    <% if (successMessage) { %>
+        <div class="alert alert-success" role="alert" id="successMessage">
+            <%= successMessage %>
+        </div>
+        <script>
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 1000); 
+        </script>
+    <% } %>
+    <div class="btns">
+        <a class="btn btn-primary btn-lg" href="/login" role="button">Log In</a>
+        <a class="btn btn-dark btn-lg" href="/register" role="button">Register</a>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

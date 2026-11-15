@@ -1,0 +1,84 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
+<div class="container mt-5">
+    <div class="row">
+        <h1><%= isEditing ? "Edit Maintenance Request" : "Submit Maintenance Request" %></h1>
+
+    <div class="col-sm-8 box">
+        <div class="card">
+            <div class="card-body">
+
+                <form action="<%= formAction %>" method="POST" enctype="multipart/form-data">
+
+                    <div class="form-group">
+                        <label for="issue">Issue</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="issue"
+                            id="issue"
+                            placeholder="e.g. Leaking kitchen faucet"
+                            value="<%= request?.issue || '' %>"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea
+                            rows="4"
+                            class="form-control"
+                            name="description"
+                            id="description"
+                            placeholder="Describe the maintenance issue..."
+                            required
+                        ><%= request?.description || '' %></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photo">Upload Photo (Optional)</label>
+                        <input
+                            type="file"
+                            class="form-control"
+                            name="photo"
+                            id="photo"
+                            accept="image/*"
+                        >
+                        <% if (isEditing) { %>
+                            <small class="form-text text-muted">
+                                Leave this blank to keep the current photo.
+                            </small>
+                        <% } %>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="urgency">Urgency</label>
+                        <select
+                            class="form-control"
+                            name="urgency"
+                            id="urgency"
+                            required
+                        >
+                            <option value="">Select Urgency</option>
+                            <option value="Low" <%= request?.urgency === "Low" ? "selected" : "" %>>Low</option>
+                            <option value="Medium" <%= request?.urgency === "Medium" ? "selected" : "" %>>Medium</option>
+                            <option value="High" <%= request?.urgency === "High" ? "selected" : "" %>>High</option>
+                            <option value="Emergency" <%= request?.urgency === "Emergency" ? "selected" : "" %>>Emergency</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-dark">
+                        <%= isEditing ? "Save Changes" : "Submit Request" %>
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<%- include('partials/footer') %>

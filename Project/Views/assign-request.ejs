@@ -1,0 +1,45 @@
+<%- include('partials/header') %>
+<%- include('partials/nav-property') %>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-sm-8 box">
+            <div class="card">
+                <div class="card-body">
+                    <h1>Assign Maintenance Request</h1>
+
+                    <h5><%= request.issue %></h5>
+                    <p><strong>Description:</strong> <%= request.description %></p>
+                    <p><strong>Urgency:</strong> <%= request.urgency %></p>
+                    <p><strong>Tenant:</strong> <%= request.tenantName %></p>
+
+                    <% if (maintenanceUsers.length === 0) { %>
+                        <p>No maintenance users are available to assign.</p>
+                    <% } else { %>
+                        <form action="/assign-request/<%= request._id %>" method="POST">
+                            <div class="form-group">
+                                <label for="maintenanceUserId">Maintenance User</label>
+                                <select
+                                    class="form-control"
+                                    name="maintenanceUserId"
+                                    id="maintenanceUserId"
+                                    required>
+                                    <option value="">Select a maintenance user</option>
+                                    <% maintenanceUsers.forEach(user => { %>
+                                        <option value="<%= user._id %>"><%= user.userName %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-dark">Confirm Assignment</button>
+                        </form>
+                    <% } %>
+
+                    <a href="/owner-request">Back to Requests</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
